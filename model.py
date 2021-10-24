@@ -1,14 +1,26 @@
-import math
-
 import cv2
 import numpy as np
 import torch
 import torch.nn as nn
 import timm
-
-from wider_face_dataset import WiderDataset, img_size
-from train import batch_size,device
 import torch.nn.functional as F
+
+def Loss(pred, ans):
+    pred = torch.permute(pred,(0,2,3,1))
+    mask_obj = ans[:,:,:,4]
+    mask_no_obj = (ans[:,:,:,4] == 0)
+    lamda = 5
+
+    loss_obj = F.mse_loss(mask_obj * pred[:, :, :, 4], ans[:, :, :, 4], reduction='sum')
+    loss_x = F.mse_loss(mask_obj * pred[:, :, :, 0], ans[:, :, :, 0], reduction='sum') * lamda
+    loss_y = F.mse_loss(mask_obj * pred[:, :, :, 1], ans[:, :, :, 1], reduction='sum') * lamda
+    loss_w = F.mse_loss(mask_obj * torch.sqrt(pred[:, :, :, 2]), torch.sqrt(ans[:, :, :, 2]), reduction='sum') * lamda
+    loss_h = F.mse_loss(mask_obj * torch.sqrt(pred[:, :, :, 3]), torch.sqrt(ans[:, :, :, 3]), reduction='sum') * lamda
+    loss_no_obj = F.mse_loss(mask_no_obj * pred[:, :, :, 4], ans[:, :, :, 4], reduction='sum') * 0.5
+
+    loss = (loss_obj + loss_x + loss_y + loss_w + loss_h + loss_no_obj) / ans.shape[0]
+    return loss
+
 
 class FaceModel(nn.Module):
     def __init__(self, name):
@@ -48,5 +60,12 @@ class FaceModel(nn.Module):
         out = self.convEnd(out)
         out = self.sig(out)
         return out
+
+# model = FaceModel('resnet18').to('cuda')
+# test = torch.rand(1, 3, 448, 448).to('cuda')
+# ans = torch.rand(1, 7, 7, 5)
+# out = model(test).to('cpu')
+# loss = Loss(out, ans)
+# print(loss)
 
 

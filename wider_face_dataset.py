@@ -5,7 +5,7 @@ import albumentations as Aug
 import cv2
 
 
-# grid_size = 7
+grid_size = 7
 img_size = 448
 
 
@@ -117,7 +117,7 @@ def my_collate(batch):
     batch_size = len(batch)
     x,y = map(list, zip(*batch))
     x = torch.stack(list(x), dim=0)
-    dummy = torch.zeros(batch_size,49,5)
+    dummy = torch.zeros(batch_size,grid_size**2,5)
     y = calcY(y,dummy)
     return x,y
 
