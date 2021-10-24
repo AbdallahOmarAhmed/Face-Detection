@@ -100,14 +100,12 @@ def calcY(Ys, preds):
             colm = int(centerX * img_size / size)
             row = int(centerY * img_size / size)
 
-            index = int(colm + row * grid_size)
-
             normX = colm / grid_size
             normY = row / grid_size
 
             centerX = (centerX - normX) * grid_size
             centerY = (centerY - normY) * grid_size
-            out[index] = torch.tensor([centerX, centerY, w, h, 1])
+            out[colm][row] = torch.tensor([centerX, centerY, w, h, 1])
         output.append(out)
     output = torch.stack(output)
     return output
@@ -117,7 +115,7 @@ def my_collate(batch):
     batch_size = len(batch)
     x,y = map(list, zip(*batch))
     x = torch.stack(list(x), dim=0)
-    dummy = torch.zeros(batch_size,grid_size**2,5)
+    dummy = torch.zeros(batch_size, 7, 7, 5)
     y = calcY(y,dummy)
     return x,y
 
