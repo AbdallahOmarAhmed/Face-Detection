@@ -27,6 +27,12 @@ share/python-wheels/
 *.egg
 MANIFEST
 unused.py
+test.py
+models/
+wider_face_split/
+WIDER_val/
+WIDER_train/
+
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
