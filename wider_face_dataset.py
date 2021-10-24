@@ -88,7 +88,7 @@ def calcY(Ys, preds):
     for Y in Ys:
         # Y *= img_size
         out = torch.zeros(preds[0].shape)
-        grid_size = preds[0].shape[0] ** 0.5
+        grid_size = preds[0].shape[0]
         size = img_size / grid_size
         for y in Y:
             w = y[2] - y[0]
@@ -97,18 +97,20 @@ def calcY(Ys, preds):
             centerX = (y[0] + y[2]) / 2
             centerY = (y[1] + y[3]) / 2
 
-            colm = int(centerX * img_size / size)
-            row = int(centerY * img_size / size)
+            colm = int(centerX * grid_size)
+            row = int(centerY * grid_size)
 
             normX = colm / grid_size
             normY = row / grid_size
 
             centerX = (centerX - normX) * grid_size
             centerY = (centerY - normY) * grid_size
+
             out[colm][row] = torch.tensor([centerX, centerY, w, h, 1])
         output.append(out)
     output = torch.stack(output)
     return output
+
 
 
 def my_collate(batch):
