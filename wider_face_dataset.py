@@ -106,11 +106,10 @@ def calcY(Ys, preds):
             centerX = (centerX - normX) * grid_size
             centerY = (centerY - normY) * grid_size
 
-            out[colm][row] = torch.tensor([centerX, centerY, w, h, 1])
+            out[row][colm] = torch.tensor([centerX, centerY, w, h, 1])
         output.append(out)
     output = torch.stack(output)
     return output
-
 
 
 def my_collate(batch):
@@ -121,3 +120,39 @@ def my_collate(batch):
     y = calcY(y,dummy)
     return x,y
 
+
+def draw(x,y):
+    r = 0
+    size = img_size / grid_size
+    for row in y:
+        c = 0
+        for out in row:
+            if out[4] == 1:
+
+                centreX = (out[0] + c) * size
+                centreY = (out[1] + r) * size
+                w = out[2] * img_size
+                h = out[3] * img_size
+
+                # print(out[0],out[1])
+                k = np.array([centreX-w/2, centreY-h/2, centreX+w/2, centreY+h/2])
+                k = list(map(int, k))
+                # print(k)
+                cv2.rectangle(x, (k[0], k[1]), (k[2], k[3]), (256,0,0), 1)
+            c+=1
+        r+=1
+    cv2.imshow('image', x)
+    cv2.waitKey(0)
+
+
+train_data = WiderDataset(7)
+test_data = WiderDataset(7, False)
+
+train_dataloader = DataLoader(train_data, batch_size=1, shuffle=True, num_workers=4,
+                              collate_fn=my_collate, drop_last=True)
+test_dataloader = DataLoader(test_data, batch_size=1, shuffle=False, num_workers=4,
+                             collate_fn=my_collate, drop_last=True)
+for x,y in train_dataloader:
+    x = torch.squeeze(x).numpy()
+    y = torch.squeeze(y)
+    draw(x,y)
