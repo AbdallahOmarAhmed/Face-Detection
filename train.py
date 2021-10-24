@@ -29,8 +29,8 @@ test_dataloader = DataLoader(test_data, batch_size=batch_size, shuffle=False, nu
 
 # create model
 model = FaceModel('resnet18')
-optimaizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 model.to(device)
+optimaizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 print('finished loading model')
 
 
@@ -45,13 +45,13 @@ for epoch in range(num_epochs):
         x = x.permute(0,3,1,2)
         images = x.to(torch.float32).to(device)
         labels = y.to(torch.float32).to(device)
+
+        optimaizer.zero_grad()
         output = model(images)
         loss = Loss(output, labels)
-
-        # backward
         loss.backward()
-        optimaizer.zero_grad()
         optimaizer.step()
+
         with torch.no_grad():
             epoch_loss += loss
 
@@ -68,9 +68,9 @@ for epoch in range(num_epochs):
         for x0, y0 in test_dataloader:
             c_test += 1
             x0 = x0.permute(0, 3, 1, 2)
-            image = x0.to(device)
+            image = x0.to(torch.float32).to(device)
             output = model(image)
-            label = y0.to(device)
+            label = y0.to(torch.float32).to(device)
             loss2 += Loss(output, label)
 
         loss2 /= c_test
