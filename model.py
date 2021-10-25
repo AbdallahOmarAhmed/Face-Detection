@@ -6,7 +6,6 @@ import timm
 import torch.nn.functional as F
 
 def Loss(pred, ans):
-    pred = torch.permute(pred,(0,2,3,1))
     mask_obj = ans[:,:,:,4]
     mask_no_obj = (ans[:,:,:,4] == 0)
     lamda = 5
@@ -21,6 +20,19 @@ def Loss(pred, ans):
     loss = (loss_obj + loss_x + loss_y + loss_w + loss_h + loss_no_obj) / ans.shape[0]
     return loss
 
+
+class FaceModelFC(nn.Module):
+    def __init__(self):
+        super(FaceModelFC, self).__init__()
+        self.model = timm.create_model('resnet18', pretrained=True, num_classes=7*7*5)
+        self.sig = nn.Sigmoid()
+
+    def forward(self, x):
+        # input 3 * 256 * 256
+        out = self.model(x)
+        out = self.sig(out)
+        out = torch.reshape(out, (-1, 7, 7, 5))
+        return out
 
 class FaceModel(nn.Module):
     def __init__(self, name):
@@ -59,6 +71,8 @@ class FaceModel(nn.Module):
 
         out = self.convEnd(out)
         out = self.sig(out)
+        out = torch.permute(out, (0, 2, 3, 1))
+
         return out
 
 # model = FaceModel('resnet18').to('cuda')

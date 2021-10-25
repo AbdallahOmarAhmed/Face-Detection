@@ -5,7 +5,7 @@ from torchvision import transforms, models
 import torch.nn as nn
 import timm
 
-from model import FaceModel, Loss
+from model import FaceModel, Loss, FaceModelFC
 from wider_face_dataset import WiderDataset, my_collate
 import time
 
@@ -14,8 +14,8 @@ print('you are using ', device)
 
 # hayper parametars
 num_epochs = 40
-learning_rate = 0.0001
-batch_size = 50
+learning_rate = 0.001
+batch_size = 48
 minLoss = -1
 
 # load data
@@ -28,9 +28,10 @@ test_dataloader = DataLoader(test_data, batch_size=batch_size, shuffle=False, nu
                              collate_fn=my_collate, drop_last=True)
 
 # create model
-model = FaceModel('resnet18')
+model = FaceModelFC()
 model.to(device)
-optimaizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+model.train()
+optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-4)
 print('finished loading model')
 
 
@@ -42,15 +43,16 @@ for epoch in range(num_epochs):
     c = 0
     for x,y in train_dataloader:
         c += 1
-        x = x.permute(0,3,1,2)
-        images = x.to(torch.float32).to(device)
-        labels = y.to(torch.float32).to(device)
+        images = x.to(device)
+        labels = y.to(device)
 
-        optimaizer.zero_grad()
+        optimizer.zero_grad()
         output = model(images)
+        optimizer.zero_grad()
+        
         loss = Loss(output, labels)
         loss.backward()
-        optimaizer.step()
+        optimizer.step()
 
         with torch.no_grad():
             epoch_loss += loss
@@ -77,11 +79,11 @@ for epoch in range(num_epochs):
         print('loss test : ', loss2.item())
         if loss2 < minLoss or minLoss == -1:
             minLoss = loss2
-            torch.save(model.state_dict(), 'models/Best2.pth')
+            torch.save(model.state_dict(), 'models/Best5.pth')
             print('saved!')
         print("time : ", (time.time() - start_time))
-        torch.save(model.state_dict(), 'models/Last2.pth')
-        with open("models/test2.txt", "a") as file:
+        torch.save(model.state_dict(), 'models/Last5.pth')
+        with open("models/test5.txt", "a") as file:
             file.write('lr = '+str(learning_rate)+'\n')
             file.write(str(epoch + 1) + '/' + str(num_epochs) + ' loss = ' + str(epoch_loss.item()) + "\n")
             file.write('loss test : ' + str(loss2.item()) + "\n")

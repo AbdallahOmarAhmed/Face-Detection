@@ -116,6 +116,7 @@ def my_collate(batch):
     batch_size = len(batch)
     x,y = map(list, zip(*batch))
     x = torch.stack(list(x), dim=0)
+    x = x.permute(0, 3, 1, 2)
     dummy = torch.zeros(batch_size, 7, 7, 5)
     y = calcY(y,dummy)
     return x,y
