@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+from albumentations.pytorch import ToTensorV2
 from torch.utils.data import Dataset, DataLoader
 import albumentations as Aug
 import cv2
@@ -15,7 +16,9 @@ def getAug(train):
             Aug.RandomResizedCrop(img_size, img_size, scale=(0.5, 0.9)),
             Aug.RGBShift(r_shift_limit=26, g_shift_limit=26, b_shift_limit=26),
             Aug.RandomBrightnessContrast(p=0.4),
-            Aug.HorizontalFlip(p=0.5)
+            Aug.HorizontalFlip(p=0.5),
+            Aug.Normalize(),
+            ToTensorV2()
         ], bbox_params=Aug.BboxParams(format='pascal_voc', min_visibility=0.75))
         return transforms
     else:
@@ -70,15 +73,13 @@ class WiderDataset(Dataset):
             labels.append(l)
         labels = np.array(labels)
         image = cv2.imread(self.path+self.X[index])
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         transformed = aug(image=image, bboxes=labels)
-        x = transformed['image']
-        y = transformed['bboxes']
-        y = np.array(y)/img_size
-        # y = calcY(y)/img_size
-        # y[:,-1] *= img_size
-        # print(y.shape)
-        x = torch.from_numpy(x)/255
-        return x,y
+        # x = transformed['image']
+        # x = torch.from_numpy(x)/255
+        # y = transformed['bboxes']
+        # y = np.array(y)/img_size
+        return transformed['image'],transformed['bboxes']
 
 
 def calcY(Ys, preds):
@@ -117,7 +118,7 @@ def my_collate(batch):
     x,y = map(list, zip(*batch))
     x = torch.stack(list(x), dim=0)
     dummy = torch.zeros(batch_size, 7, 7, 5)
-    y = calcY(y,dummy)
+    y = calcY(np.array(y)/img_size, dummy)
     return x,y
 
 
@@ -149,9 +150,9 @@ if __name__ == '__main__':
     train_data = WiderDataset(7)
     test_data = WiderDataset(7, False)
 
-    train_dataloader = DataLoader(train_data, batch_size=1, shuffle=True, num_workers=4,
+    train_dataloader = DataLoader(train_data, batch_size=1, shuffle=True, num_workers=0,
                                   collate_fn=my_collate, drop_last=True)
-    test_dataloader = DataLoader(test_data, batch_size=1, shuffle=False, num_workers=4,
+    test_dataloader = DataLoader(test_data, batch_size=1, shuffle=False, num_workers=0,
                                  collate_fn=my_collate, drop_last=True)
     for x,y in train_dataloader:
         x = torch.squeeze(x).numpy()
