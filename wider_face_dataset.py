@@ -23,7 +23,9 @@ def getAug(train):
         return transforms
     else:
         transforms = Aug.Compose([
-            Aug.Resize(img_size, img_size)
+            Aug.Resize(img_size, img_size),
+            Aug.Normalize(),
+            ToTensorV2()
         ], bbox_params=Aug.BboxParams(format='pascal_voc', min_visibility=0.75))
         return transforms
 
