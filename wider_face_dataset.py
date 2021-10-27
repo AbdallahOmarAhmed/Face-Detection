@@ -145,14 +145,15 @@ def draw(x,y):
     cv2.waitKey(0)
 
 
-# train_data = WiderDataset(7)
-# test_data = WiderDataset(7, False)
+if __name__ == '__main__':
+    train_data = WiderDataset(7)
+    test_data = WiderDataset(7, False)
 
-# train_dataloader = DataLoader(train_data, batch_size=1, shuffle=True, num_workers=4,
-#                               collate_fn=my_collate, drop_last=True)
-# test_dataloader = DataLoader(test_data, batch_size=1, shuffle=False, num_workers=4,
-#                              collate_fn=my_collate, drop_last=True)
-# for x,y in train_dataloader:
-#     x = torch.squeeze(x).numpy()
-#     y = torch.squeeze(y)
-#     draw(x,y)
+    train_dataloader = DataLoader(train_data, batch_size=1, shuffle=True, num_workers=4,
+                                  collate_fn=my_collate, drop_last=True)
+    test_dataloader = DataLoader(test_data, batch_size=1, shuffle=False, num_workers=4,
+                                 collate_fn=my_collate, drop_last=True)
+    for x,y in train_dataloader:
+        x = torch.squeeze(x).numpy()
+        y = torch.squeeze(y)
+        draw(x,y)
