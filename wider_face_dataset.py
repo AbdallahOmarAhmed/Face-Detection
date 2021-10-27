@@ -75,11 +75,11 @@ class WiderDataset(Dataset):
         image = cv2.imread(self.path+self.X[index])
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         transformed = aug(image=image, bboxes=labels)
-        # x = transformed['image']
+        x = transformed['image']
+        y = transformed['bboxes']
+        y = np.array(y)/img_size
         # x = torch.from_numpy(x)/255
-        # y = transformed['bboxes']
-        # y = np.array(y)/img_size
-        return transformed['image'],transformed['bboxes']
+        return x,y
 
 
 def calcY(Ys, preds):
@@ -118,7 +118,7 @@ def my_collate(batch):
     x,y = map(list, zip(*batch))
     x = torch.stack(list(x), dim=0)
     dummy = torch.zeros(batch_size, 7, 7, 5)
-    y = calcY(np.array(y)/img_size, dummy)
+    y = calcY(y, dummy)
     return x,y
 
 
