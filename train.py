@@ -5,7 +5,7 @@ from torchvision import transforms, models
 import torch.nn as nn
 import timm
 
-from model import FaceModel, Loss
+from model import FaceModel, Loss, FaceModelFC
 from wider_face_dataset import WiderDataset, my_collate
 import time
 
@@ -14,8 +14,8 @@ print('you are using ', device)
 
 # hayper parametars
 num_epochs = 40
-learning_rate = 0.0001
-batch_size = 50
+learning_rate = 0.0003
+batch_size = 48
 minLoss = -1
 
 # load data
@@ -32,7 +32,6 @@ model = FaceModel('resnet18')
 model.to(device)
 optimaizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 print('finished loading model')
-
 
 # training loop
 for epoch in range(num_epochs):
@@ -52,8 +51,7 @@ for epoch in range(num_epochs):
         loss.backward()
         optimaizer.step()
 
-        with torch.no_grad():
-            epoch_loss += loss
+        epoch_loss += loss
 
     epoch_loss /= c
     print(epoch + 1, '/', num_epochs, 'loss = ', epoch_loss.item())
@@ -77,11 +75,11 @@ for epoch in range(num_epochs):
         print('loss test : ', loss2.item())
         if loss2 < minLoss or minLoss == -1:
             minLoss = loss2
-            torch.save(model.state_dict(), 'models/Best2.pth')
+            torch.save(model.state_dict(), 'models/BestFixed.pth')
             print('saved!')
         print("time : ", (time.time() - start_time))
-        torch.save(model.state_dict(), 'models/Last2.pth')
-        with open("models/test2.txt", "a") as file:
+        torch.save(model.state_dict(), 'models/LastFixed.pth')
+        with open("models/testFixed.txt", "a") as file:
             file.write('lr = '+str(learning_rate)+'\n')
             file.write(str(epoch + 1) + '/' + str(num_epochs) + ' loss = ' + str(epoch_loss.item()) + "\n")
             file.write('loss test : ' + str(loss2.item()) + "\n")
