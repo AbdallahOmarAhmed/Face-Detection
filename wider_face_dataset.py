@@ -1,3 +1,5 @@
+import time
+
 import torch
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
@@ -81,45 +83,45 @@ class WiderDataset(Dataset):
         return x,y
 
 
-def calcY(Ys, preds):
-    output = []
-    if len(Ys) == 0:
-        return torch.zeros(preds.shape)
-    for Y in Ys:
-        # Y *= img_size
-        out = torch.zeros(preds[0].shape)
-        grid_size = preds[0].shape[0]
-        size = img_size / grid_size
-        for y in Y:
-            w = y[2] - y[0]
-            h = y[3] - y[1]
+# def calcY(Ys, preds):
+#     output = []
+#     if len(Ys) == 0:
+#         return torch.zeros(preds.shape)
+#     for Y in Ys:
+#         # Y *= img_size
+#         out = torch.zeros(preds[0].shape)
+#         grid_size = preds[0].shape[0]
+#         size = img_size / grid_size
+#         for y in Y:
+#             w = y[2] - y[0]
+#             h = y[3] - y[1]
+#
+#             centerX = (y[0] + y[2]) / 2
+#             centerY = (y[1] + y[3]) / 2
+#
+#             colm = int(centerX * grid_size)
+#             row = int(centerY * grid_size)
+#
+#             normX = colm / grid_size
+#             normY = row / grid_size
+#
+#             centerX = (centerX - normX) * grid_size
+#             centerY = (centerY - normY) * grid_size
+#
+#             out[row][colm] = torch.tensor([centerX, centerY, w, h, 1])
+#         output.append(out)
+#     output = torch.stack(output)
+#     return output
 
-            centerX = (y[0] + y[2]) / 2
-            centerY = (y[1] + y[3]) / 2
 
-            colm = int(centerX * grid_size)
-            row = int(centerY * grid_size)
-
-            normX = colm / grid_size
-            normY = row / grid_size
-
-            centerX = (centerX - normX) * grid_size
-            centerY = (centerY - normY) * grid_size
-
-            out[row][colm] = torch.tensor([centerX, centerY, w, h, 1])
-        output.append(out)
-    output = torch.stack(output)
-    return output
-
-
-def my_collate(batch):
-    batch_size = len(batch)
-    x,y = map(list, zip(*batch))
-    x = torch.stack(list(x), dim=0)
-    x = x.permute(0, 3, 1, 2)
-    dummy = torch.zeros(batch_size, 7, 7, 5)
-    y = calcY(y,dummy)
-    return x,y
+# def my_collate(batch):
+#     batch_size = len(batch)
+#     x,y = map(list, zip(*batch))
+#     x = torch.stack(list(x), dim=0)
+#     x = x.permute(0, 3, 1, 2)
+#     dummy = torch.zeros(batch_size, 7, 7, 5)
+#     y = calcY(y,dummy)
+#     return x,y
 
 
 def draw(x,y):
@@ -147,6 +149,7 @@ def draw(x,y):
 
 
 # train_data = WiderDataset(7)
+
 # test_data = WiderDataset(7, False)
 
 # train_dataloader = DataLoader(train_data, batch_size=1, shuffle=True, num_workers=4,

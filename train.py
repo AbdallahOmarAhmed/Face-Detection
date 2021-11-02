@@ -4,6 +4,7 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, models
 import torch.nn as nn
 import timm
+from loss import YOLOLoss
 
 from model import FaceModel, Loss, FaceModelFC, LossVec
 # from wider_face_dataset import WiderDataset, my_collate
@@ -16,7 +17,7 @@ print(device)
 # hayper parametars
 num_epochs = 80
 learning_rate = 0.0003
-batch_size = 48
+batch_size = 50
 minLoss = -1
 # load data
 # train_data = TrainDataset()
@@ -29,15 +30,16 @@ train_dataloader = DataLoader(train_data, batch_size=batch_size,shuffle=True, nu
 test_dataloader = DataLoader(test_data, batch_size=batch_size,shuffle=False, num_workers=4)
 
 # create model
-model = FaceModelFC()
+model = FaceModel('resnet18')
 model.to(device)
 model.train()
 # optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-4)
 optimizer = torch.optim.Adam(model.parameters(),lr=learning_rate)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.8)
+myLoss = YOLOLoss(7)
 
 print('finished loading model')
-
+print('___________________________________________________________________________\n')
 
 # training loop
 for epoch in range(num_epochs):
@@ -45,23 +47,21 @@ for epoch in range(num_epochs):
     model.train()
     epoch_loss = 0
     c = 0
-    #print('loading : ', end='',flush=True)
+    print('loading : ', end='',flush=True)
     for x,y in train_dataloader:
         c += 1
-        x = x.permute(0, 3, 1, 2)
-        images = x.to(torch.float32).to(device)
-        labels = y.to(torch.float32).to(device)
-
-        output = model(images)
+        images = x.to(device)
+        labels = y.to(device)
 
         optimizer.zero_grad()
-        loss = LossVec(output, labels)
+        output = model(images)
+        loss = myLoss.forward(output, labels)
         loss.backward()
         optimizer.step()
 
-        epoch_loss += loss/batch_size
-        #print('#', end='', flush=True)
-    #print("")
+        epoch_loss += loss
+        print('|', end='', flush=True)
+    print("")
     scheduler.step()
     epoch_loss /= c
     print(epoch + 1, '/', num_epochs, 'loss = ', epoch_loss.item())
@@ -72,29 +72,28 @@ for epoch in range(num_epochs):
         n_total = 0
         loss2 = 0
         c_test = 0
-        for x, y in test_dataloader:
+        for x0, y0 in test_dataloader:
             c_test += 1
-            x = x.permute(0, 3, 1, 2)
-            y = y.to(device)
-            image = x.to(device)
+            image = x0.to(device)
+            label = y0.to(device)
 
             output = model(image)
-            loss2 += LossVec(output, y)/batch_size
+            loss2 += myLoss.forward(output, label)
 
         loss2 /= c_test
         print('loss test : ', loss2.item())
         if loss2 < minLoss or minLoss == -1:
             minLoss = loss2
-            torch.save(model.state_dict(), 'models/test1.pth')
+            torch.save(model.state_dict(), 'models/BestNoFc2.pth')
             print('saved!')
+        torch.save(model.state_dict(), 'models/LastNoFc2.pth')
         print("time : ", (time.time() - start_time))
-        torch.save(model.state_dict(), 'models/test2.pth')
-        with open("models/test0.txt", "a") as file:
+        with open("models/NoFc2.txt", "a") as file:
             file.write('lr = '+str(learning_rate)+'\n')
             file.write(str(epoch + 1) + '/' + str(num_epochs) + ' loss = ' + str(epoch_loss.item()) + "\n")
             file.write('loss test : ' + str(loss2.item()) + "\n")
             file.write('min loss = ' + str(minLoss) + "\n >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> \n")
-        print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+        print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
 
 

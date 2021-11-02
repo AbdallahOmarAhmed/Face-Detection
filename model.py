@@ -56,12 +56,22 @@ class FaceModel(nn.Module):
         # model = timm.create_model('efficientnet_b0', pretrained=True, num_classes=0, global_pool='')
         self.model = timm.create_model(name, pretrained=True, num_classes=0, global_pool='')
         self.pool = nn.AvgPool2d(2, stride=2)
+
+        self.drop1 = nn.Dropout2d(p=0.25)
         self.conv1 = nn.Conv2d(512, 5, 1)
-        self.activation = nn.ReLU()
-        self.norm = nn.BatchNorm2d(5)
-        self.drop = nn.Dropout2d(p=0.25)
+        self.norm1 = nn.BatchNorm2d(5)
+        self.activation1 = nn.ReLU()
+
+        self.drop2 = nn.Dropout2d(p=0.25)
         self.conv2 = nn.Conv2d(5, 5, 1)
+        self.norm2 = nn.BatchNorm2d(5)
+        self.activation2 = nn.ReLU()
+
+        self.drop3 = nn.Dropout2d(p=0.25)
         self.conv3 = nn.Conv2d(5, 5, 1)
+        self.norm3 = nn.BatchNorm2d(5)
+        self.activation3 = nn.ReLU()
+
         self.convEnd = nn.Conv2d(5, 5, 1)
         self.sig = nn.Sigmoid()
 
@@ -69,25 +79,27 @@ class FaceModel(nn.Module):
         # input 3 * 256 * 256
         out = self.model(x)
         out = self.pool(out)
-        out = self.drop(out)
 
+        # out = self.drop1(out)
         out = self.conv1(out)
-        out = self.norm(out)
-        out = self.activation(out)
-        out = self.drop(out)
+        out = self.norm1(out)
+        out = self.activation1(out)
 
+        # out = self.drop2(out)
         out = self.conv2(out)
-        out = self.norm(out)
-        out = self.activation(out)
-        out = self.drop(out)
+        out = self.norm2(out)
+        out = self.activation2(out)
 
+        # out = self.drop3(out)
         out = self.conv3(out)
-        out = self.norm(out)
-        out = self.activation(out)
+        out = self.norm3(out)
+        out = self.activation3(out)
 
         out = self.convEnd(out)
         out = self.sig(out)
-        out = torch.permute(out, (0, 2, 3, 1))
+
+        out = torch.permute(out, (0, 3, 2, 1))
+        out = torch.reshape(out, (-1, 49, 5))
 
         return out
 

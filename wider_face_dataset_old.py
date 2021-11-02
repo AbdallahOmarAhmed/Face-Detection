@@ -3,6 +3,7 @@ import time
 
 import torch
 import numpy as np
+from albumentations.pytorch import ToTensorV2
 from torch.utils.data import Dataset, DataLoader
 # from data_aug.data_aug import *
 # from data_aug.bbox_util import *
@@ -20,12 +21,16 @@ def getAug(train):
         transforms = Aug.Compose([
             Aug.RandomResizedCrop(img_size, img_size, scale=(0.5, 0.9)),
             Aug.RGBShift(r_shift_limit=26, g_shift_limit=26, b_shift_limit=26),
-            Aug.HorizontalFlip(p=0.5)
+            Aug.HorizontalFlip(p=0.5),
+            Aug.Normalize(),
+            ToTensorV2()
         ], bbox_params=Aug.BboxParams(format='pascal_voc', min_visibility=0.9))
         return transforms
     else:
         transforms = Aug.Compose([
-            Aug.Resize(img_size, img_size)
+            Aug.Resize(img_size, img_size),
+            Aug.Normalize(),
+            ToTensorV2()
         ], bbox_params=Aug.BboxParams(format='pascal_voc', min_visibility=0.9))
         return transforms
 
@@ -108,7 +113,8 @@ class WiderDataset(Dataset):
         y = np.array(y)
         y = calcY(y)/img_size
         y[:,-1] *= img_size
-        x = torch.from_numpy(x)/255
+        # x = torch.from_numpy(x)
+        # x = x.permute(0, 3, 1, 2)
         return x,y
 
 def draw(frame, face_locations):
