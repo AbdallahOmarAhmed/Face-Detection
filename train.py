@@ -16,7 +16,7 @@ print(device)
 
 # hayper parametars
 num_epochs = 80
-learning_rate = 0.0003
+learning_rate = 0.001
 batch_size = 50
 minLoss = -1
 # load data
@@ -84,11 +84,11 @@ for epoch in range(num_epochs):
         print('loss test : ', loss2.item())
         if loss2 < minLoss or minLoss == -1:
             minLoss = loss2
-            torch.save(model.state_dict(), 'models/BestNoFc2.pth')
+            torch.save(model.state_dict(), 'models/BestNoFc3.pth')
             print('saved!')
-        torch.save(model.state_dict(), 'models/LastNoFc2.pth')
+        torch.save(model.state_dict(), 'models/LastNoFc3.pth')
         print("time : ", (time.time() - start_time))
-        with open("models/NoFc2.txt", "a") as file:
+        with open("models/NoFc3.txt", "a") as file:
             file.write('lr = '+str(learning_rate)+'\n')
             file.write(str(epoch + 1) + '/' + str(num_epochs) + ' loss = ' + str(epoch_loss.item()) + "\n")
             file.write('loss test : ' + str(loss2.item()) + "\n")
