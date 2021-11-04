@@ -10,13 +10,13 @@ from albumentations.pytorch import ToTensorV2
 from torch.utils.data import DataLoader
 import albumentations as Aug
 
-from model import FaceModel, FaceModelFC
+from model import FaceModel
 from wider_face_dataset_old import WiderDataset
 
 img_size = 448
 
 
-model = FaceModelFC().cuda()
+model = FaceModel().cuda()
 model.load_state_dict(torch.load("models/BestFixed3.pth"))
 
 path = 'WIDER_train/images/33--Running/33_Running_Running_33_71.jpg'

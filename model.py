@@ -6,57 +6,12 @@ import timm
 import torch.nn.functional as F
 
 
-
-def LossVec(pred, ans):
-    grid_size = 7
-    loss = 0
-    pred = torch.reshape(pred, (-1, grid_size*grid_size, 5))
-    noObj = (ans[:,:,4] == 0) * 0.5
-    lamda = 5
-    sqrt_ans = torch.sqrt(ans[:, :, 2:4])
-    sqrt_pred = torch.sqrt(pred[:, :, 2:4])
-    loss += sum(sum(ans[:,:,4] * (pred[:,:,4] - ans[:,:,4])**2))
-    loss += sum(sum(noObj * (pred[:,:,4] - ans[:,:,4])**2))
-    loss += sum(sum(sum((lamda * (pred[:, :, 0:2] - ans[:, :, 0:2]) ** 2) * torch.unsqueeze(ans[:, :, 4], -1))))
-    loss += sum(sum(sum((lamda * (sqrt_pred - sqrt_ans) ** 2) * torch.unsqueeze(ans[:, :, 4], -1))))
-    return loss
-
-def Loss(pred, ans):
-    mask_obj = ans[:,:,4]
-    mask_no_obj = (ans[:,:,4] == 0)
-    lamda = 5
-
-    loss_obj = F.mse_loss(mask_obj * pred[:, :, 4], ans[:, :, 4], reduction='sum')
-    loss_x = F.mse_loss(mask_obj * pred[:, :, 0], ans[:, :, 0], reduction='sum') * lamda
-    loss_y = F.mse_loss(mask_obj * pred[:, :, 1], ans[:, :, 1], reduction='sum') * lamda
-    loss_w = F.mse_loss(mask_obj * torch.sqrt(pred[:, :, 2]), torch.sqrt(ans[:, :, 2]), reduction='sum') * lamda
-    loss_h = F.mse_loss(mask_obj * torch.sqrt(pred[:, :, 3]), torch.sqrt(ans[:, :, 3]), reduction='sum') * lamda
-    loss_no_obj = F.mse_loss(mask_no_obj * pred[:, :, 4], torch.zeros_like(ans[:, :, 4]), reduction='sum') * 0.5
-
-    loss = (loss_obj + loss_x + loss_y + loss_w + loss_h + loss_no_obj) / ans.shape[0]
-    return loss
-
-
-class FaceModelFC(nn.Module):
-    def __init__(self):
-        super(FaceModelFC, self).__init__()
-        self.model = timm.create_model('resnet18', pretrained=True, num_classes=7*7*5)
-        self.sig = nn.Sigmoid()
-
-    def forward(self, x):
-        # input 3 * 256 * 256
-        out = self.model(x)
-        out = self.sig(out)
-        out = torch.reshape(out, (-1, 49, 5))
-        return out
-
 class FaceModel(nn.Module):
     def __init__(self, name):
         super(FaceModel, self).__init__()
         # model = timm.create_model('efficientnet_b0', pretrained=True, num_classes=0, global_pool='')
         self.model = timm.create_model(name, pretrained=True, num_classes=0, global_pool='')
-        self.pool = nn.AvgPool2d(2, stride=2)
-
+        #self.pool = nn.AvgPool2d(2, stride=2) # 14 * 14 output size
         self.convStart = nn.Conv2d(512, 256, 1)
         self.activation = nn.LeakyReLU()
         self.convEnd = nn.Conv2d(256, 5, 1)
@@ -65,22 +20,62 @@ class FaceModel(nn.Module):
     def forward(self, x):
         # input 3 * 256 * 256
         out = self.model(x)
-        out = self.pool(out)
-
+        #out = self.pool(out)
         out = self.convStart(out)
         out = self.activation(out)
         out = self.convEnd(out)
         out = self.sig(out)
-
-        out = torch.permute(out, (0, 3, 2, 1))
-        out = torch.reshape(out, (-1, 49, 5))
+        out = torch.permute(out, (0, 2, 3, 1)).contiguous()
         return out
 
-# model = FaceModel('resnet18').to('cuda')
-# test = torch.rand(1, 3, 448, 448).to('cuda')
-# ans = torch.rand(1, 7, 7, 5)
-# out = model(test).to('cpu')
-# loss = Loss(out, ans)
-# print(loss)
+
+class YOLOLoss(torch.nn.Module):
+    def __init__(self, s, l_coord = 5, l_noobj = .5, image_size=448):
+        super(YOLOLoss, self).__init__()
+        self.image_size = image_size
+        self.grid_size = s
+        self.l_coord = l_coord
+        self.l_noobj  = l_noobj
+
+    def forward(self, pred, true):
+
+        #import ipdb;ipdb.set_trace()
+        batch_size = pred.shape[0]
+        # target = creat_targets(true, self.s, self.image_size).cuda()
+        target = true
+        obj_mask = target[..., 4]
+        no_obj_mask = torch.ones_like(obj_mask) - obj_mask
+        with torch.no_grad():
+            iou = self.compute_iou(pred[..., 0:4], target[..., 0:4])
+
+        # obj_loss = torch.sum(obj_mask * F.mse_loss(pred[..., 4], target[..., 4], reduction='none'))
+        obj_loss = torch.sum(obj_mask * F.mse_loss(pred[:, :, :, 4], iou, reduction='none'))
+        no_obj_loss = self.l_noobj * torch.sum(no_obj_mask * F.mse_loss(pred[..., 4], target[..., 4], reduction='none'))
+        coord_loss = self.l_coord * torch.sum(obj_mask * F.mse_loss(pred[..., 0:4], target[..., 0:4], reduction='none').sum(-1))
+
+        return (obj_loss + no_obj_loss + coord_loss) / batch_size
+
+    def compute_iou(self, boxes1, boxes2):
+        boxes1_xy = torch.zeros_like(boxes1)
+        boxes1_xy[..., :2] = boxes1[..., :2] / self.grid_size - .5 * boxes1[..., 2:4]
+        boxes1_xy[..., 2:4] = boxes1[..., :2] / self.grid_size + .5 * boxes1[..., 2:4]
+
+        boxes2_xy = torch.zeros_like(boxes2)
+        boxes2_xy[..., :2] = boxes2[..., :2] / self.grid_size - .5 * boxes2[..., 2:4]
+        boxes2_xy[..., 2:4] = boxes2[..., :2] / self.grid_size + .5 * boxes2[..., 2:4]
+
+        tl = torch.max(boxes1_xy[..., :2], boxes2_xy[..., :2])
+        br = torch.min(boxes1_xy[..., 2:], boxes2_xy[..., 2:])
+
+        intersection = torch.clamp(br - tl, 0)
+
+        intersection_area = intersection[..., 0] * intersection[..., 1]
+
+        boxes1_area = boxes1[..., 2] * boxes1[..., 3]
+        boxes2_area = boxes2[..., 2] * boxes2[..., 3]
+
+        union_area = boxes1_area + boxes2_area - intersection_area
+
+        return intersection_area / union_area
 
 

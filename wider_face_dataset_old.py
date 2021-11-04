@@ -11,31 +11,31 @@ import random
 import torch.nn as nn
 import albumentations as Aug
 import cv2
-from wider_face_dataset import grid_size
 
 
+grid_size = 14
 img_size = 448
 
 def getAug(train):
     if train :
         transforms = Aug.Compose([
             Aug.RandomResizedCrop(img_size, img_size, scale=(0.5, 0.9)),
-            Aug.RGBShift(r_shift_limit=26, g_shift_limit=26, b_shift_limit=26),
+            Aug.RGBShift(r_shift_limit=30, g_shift_limit=30, b_shift_limit=30),
             Aug.HorizontalFlip(p=0.5),
             Aug.Normalize(),
             ToTensorV2()
-        ], bbox_params=Aug.BboxParams(format='pascal_voc', min_visibility=0.9))
+        ], bbox_params=Aug.BboxParams(format='pascal_voc', min_visibility=0.33))
         return transforms
     else:
         transforms = Aug.Compose([
             Aug.Resize(img_size, img_size),
             Aug.Normalize(),
             ToTensorV2()
-        ], bbox_params=Aug.BboxParams(format='pascal_voc', min_visibility=0.9))
+        ], bbox_params=Aug.BboxParams(format='pascal_voc', min_visibility=0.33))
         return transforms
 
 def calcY(Y):
-    out = torch.zeros([grid_size * grid_size, 5])
+    out = torch.zeros([grid_size , grid_size, 5])
     size = img_size/grid_size
     for y in Y:
         # wrong = sum((y < img_size) * 1 + (y > 0) * 1)
@@ -59,7 +59,15 @@ def calcY(Y):
         # cell_size = 1 - normY
         # centerY = centerY / cell_size
 
-        out[index] = torch.tensor([centerX, centerY, w, h, 1])
+        #out[row][colm] = torch.tensor([centerX, centerY, w, h, 1])
+        out[row,colm,0] = centerX
+        out[row,colm,1] = centerY
+        out[row,colm,2] = w
+        out[row,colm,3] = h
+        out[row,colm,4] = 1
+
+        #out[row][colm] = torch.tensor([centerX, centerY, w, h, 1])
+    #out = out.reshape(grid_size, grid_size, 5)
     return out
 
 class WiderDataset(Dataset):
@@ -112,7 +120,7 @@ class WiderDataset(Dataset):
         y = transformed['bboxes']
         y = np.array(y)
         y = calcY(y)/img_size
-        y[:,-1] *= img_size
+        y[...,-1] *= img_size
         # x = torch.from_numpy(x)
         # x = x.permute(0, 3, 1, 2)
         return x,y

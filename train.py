@@ -1,24 +1,20 @@
 import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms, models
-import torch.nn as nn
-import timm
-from loss import YOLOLoss
-
-from model import FaceModel, Loss, FaceModelFC, LossVec
+from model import FaceModel, YOLOLoss
 # from wider_face_dataset import WiderDataset, my_collate
-from wider_face_dataset_old import WiderDataset
+from wider_face_dataset_old import WiderDataset, grid_size
 import time
 
 device = torch.device('cuda' if torch.cuda.is_available() else'cpu')
 print(device)
 
 # hayper parametars
-num_epochs = 80
+num_epochs = 100
 learning_rate = 0.001
-batch_size = 50
+batch_size = 64
 minLoss = -1
+name = 'Iou2'
 # load data
 # train_data = TrainDataset()
 # test_data = TestDataset()
@@ -35,8 +31,8 @@ model.to(device)
 model.train()
 # optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-4)
 optimizer = torch.optim.Adam(model.parameters(),lr=learning_rate)
-scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.8)
-myLoss = YOLOLoss(7)
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=4, gamma=0.8)
+myLoss = YOLOLoss(grid_size)
 
 print('finished loading model')
 print('___________________________________________________________________________\n')
@@ -60,7 +56,8 @@ for epoch in range(num_epochs):
         optimizer.step()
 
         epoch_loss += loss
-        print('|', end='', flush=True)
+        if c % 3 == 0:
+            print('|', end='', flush=True)
     print("")
     scheduler.step()
     epoch_loss /= c
@@ -84,11 +81,11 @@ for epoch in range(num_epochs):
         print('loss test : ', loss2.item())
         if loss2 < minLoss or minLoss == -1:
             minLoss = loss2
-            torch.save(model.state_dict(), 'models/BestNoFc3.pth')
+            torch.save(model.state_dict(), 'models/Best'+name+'.pth')
             print('saved!')
-        torch.save(model.state_dict(), 'models/LastNoFc3.pth')
+        torch.save(model.state_dict(), 'models/Last'+name+'.pth')
         print("time : ", (time.time() - start_time))
-        with open("models/NoFc3.txt", "a") as file:
+        with open("models/"+name+".txt", "a") as file:
             file.write('lr = '+str(learning_rate)+'\n')
             file.write(str(epoch + 1) + '/' + str(num_epochs) + ' loss = ' + str(epoch_loss.item()) + "\n")
             file.write('loss test : ' + str(loss2.item()) + "\n")
