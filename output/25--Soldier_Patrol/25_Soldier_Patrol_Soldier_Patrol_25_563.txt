@@ -1,0 +1,3 @@
+25_Soldier_Patrol_Soldier_Patrol_25_563
+1
+201 56 73 73 0.8203032612800598

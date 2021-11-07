@@ -1,0 +1,3 @@
+24_Soldier_Firing_Soldier_Firing_24_115
+1
+274 94 82 125 0.9955352544784546

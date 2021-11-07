@@ -1,0 +1,4 @@
+48_Parachutist_Paratrooper_Parachutist_Paratrooper_48_678
+2
+323 319 59 70 0.9904422163963318
+641 309 66 67 0.9718753695487976

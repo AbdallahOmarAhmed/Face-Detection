@@ -1,0 +1,3 @@
+8_Election_Campain_Election_Campaign_8_120
+1
+215 128 542 644 0.9476794004440308

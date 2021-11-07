@@ -1,0 +1,3 @@
+25_Soldier_Patrol_Soldier_Patrol_25_912
+1
+331 270 32 33 0.9931387305259705

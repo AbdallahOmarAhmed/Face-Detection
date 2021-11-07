@@ -1,0 +1,3 @@
+35_Basketball_basketballgame_ball_35_423
+1
+390 130 285 428 0.709740936756134

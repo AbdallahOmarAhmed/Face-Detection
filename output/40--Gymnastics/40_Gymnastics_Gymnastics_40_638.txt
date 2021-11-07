@@ -1,0 +1,3 @@
+40_Gymnastics_Gymnastics_40_638
+1
+5 5 10 10 0.001

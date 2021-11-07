@@ -14,13 +14,13 @@ num_epochs = 100
 learning_rate = 0.001
 batch_size = 64
 minLoss = -1
-name = 'Iou2'
+name = 'all_data'
 # load data
 # train_data = TrainDataset()
 # test_data = TestDataset()
 #
-train_data = WiderDataset(5)
-test_data = WiderDataset(5, False)
+train_data = WiderDataset(50)
+test_data = WiderDataset(False, 50)
 
 train_dataloader = DataLoader(train_data, batch_size=batch_size,shuffle=True, num_workers=4)
 test_dataloader = DataLoader(test_data, batch_size=batch_size,shuffle=False, num_workers=4)
@@ -35,7 +35,7 @@ scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=4, gamma=0.8)
 myLoss = YOLOLoss(grid_size)
 
 print('finished loading model')
-print('___________________________________________________________________________\n')
+print('__________________________________________________________________________\n')
 
 # training loop
 for epoch in range(num_epochs):
@@ -90,7 +90,7 @@ for epoch in range(num_epochs):
             file.write(str(epoch + 1) + '/' + str(num_epochs) + ' loss = ' + str(epoch_loss.item()) + "\n")
             file.write('loss test : ' + str(loss2.item()) + "\n")
             file.write('min loss = ' + str(minLoss) + "\n >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> \n")
-        print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+        print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
 
 

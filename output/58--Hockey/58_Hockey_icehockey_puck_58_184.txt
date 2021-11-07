@@ -1,0 +1,3 @@
+58_Hockey_icehockey_puck_58_184
+1
+5 5 10 10 0.001

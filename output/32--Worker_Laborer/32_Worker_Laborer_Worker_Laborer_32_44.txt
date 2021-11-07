@@ -1,0 +1,3 @@
+32_Worker_Laborer_Worker_Laborer_32_44
+1
+509 218 255 404 0.8079516887664795

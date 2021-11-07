@@ -1,0 +1,3 @@
+2_Demonstration_Political_Rally_2_566
+1
+409 168 315 509 0.8211084604263306

@@ -1,0 +1,3 @@
+25_Soldier_Patrol_Soldier_Patrol_25_173
+1
+282 116 98 111 0.9902132153511047

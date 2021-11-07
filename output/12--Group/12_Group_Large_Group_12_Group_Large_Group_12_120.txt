@@ -1,0 +1,3 @@
+12_Group_Large_Group_12_Group_Large_Group_12_120
+1
+5 5 10 10 0.001

@@ -9,33 +9,44 @@ import torch.nn.functional as F
 class FaceModel(nn.Module):
     def __init__(self, name):
         super(FaceModel, self).__init__()
-        # model = timm.create_model('efficientnet_b0', pretrained=True, num_classes=0, global_pool='')
+        # features_only=True,
         self.model = timm.create_model(name, pretrained=True, num_classes=0, global_pool='')
-        #self.pool = nn.AvgPool2d(2, stride=2) # 14 * 14 output size
-        self.convStart = nn.Conv2d(512, 256, 1)
-        self.activation = nn.LeakyReLU()
-        self.convEnd = nn.Conv2d(256, 5, 1)
-        self.sig = nn.Sigmoid()
+
+        self.convStart1 = nn.Conv2d(512, 256, 1)
+        self.activation1 = nn.LeakyReLU()
+        self.convEnd1 = nn.Conv2d(256, 5, 1)
+        self.sigmoid1 = nn.Sigmoid()
+
+        self.convStart2 = nn.Conv2d(512, 256, 1)
+        self.activation2 = nn.LeakyReLU()
+        self.convEnd2 = nn.Conv2d(256, 5, 1)
+        self.sigmoid2 = nn.Sigmoid()
+
+        self.convStart3 = nn.Conv2d(512, 256, 1)
+        self.activation3 = nn.LeakyReLU()
+        self.convEnd3 = nn.Conv2d(256, 5, 1)
+        self.sigmoid3 = nn.Sigmoid()
 
     def forward(self, x):
         # input 3 * 256 * 256
         out = self.model(x)
-        #out = self.pool(out)
-        out = self.convStart(out)
-        out = self.activation(out)
-        out = self.convEnd(out)
-        out = self.sig(out)
+        # print(out.shape)
+
+        out = self.convStart1(out)
+        out = self.activation1(out)
+        out = self.convEnd1(out)
+        out = self.sigmoid1(out)
         out = torch.permute(out, (0, 2, 3, 1)).contiguous()
         return out
 
 
 class YOLOLoss(torch.nn.Module):
-    def __init__(self, s, l_coord = 5, l_noobj = .5, image_size=448):
+    def __init__(self, size, l_coord=5, l_noobj=.5, image_size=448):
         super(YOLOLoss, self).__init__()
         self.image_size = image_size
-        self.grid_size = s
+        self.grid_size = size
         self.l_coord = l_coord
-        self.l_noobj  = l_noobj
+        self.l_noobj = l_noobj
 
     def forward(self, pred, true):
 

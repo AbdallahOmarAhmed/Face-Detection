@@ -1,0 +1,3 @@
+32_Worker_Laborer_Worker_Laborer_32_860
+1
+323 353 400 530 0.7292099595069885

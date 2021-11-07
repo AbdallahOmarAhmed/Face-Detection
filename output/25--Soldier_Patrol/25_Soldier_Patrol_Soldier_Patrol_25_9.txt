@@ -1,0 +1,3 @@
+25_Soldier_Patrol_Soldier_Patrol_25_9
+1
+708 153 165 168 0.8596003651618958

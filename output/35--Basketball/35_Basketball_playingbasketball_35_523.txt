@@ -1,0 +1,3 @@
+35_Basketball_playingbasketball_35_523
+1
+148 55 123 148 0.9245772361755371

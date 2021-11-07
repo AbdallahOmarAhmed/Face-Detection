@@ -71,7 +71,7 @@ def calcY(Y):
     return out
 
 class WiderDataset(Dataset):
-    def __init__(self,max_faces = -1,train = True):
+    def __init__(self, train=True, max_faces=-1):
         self.train = train
         self.X=[]
         self.Y=[]
@@ -108,22 +108,22 @@ class WiderDataset(Dataset):
         v = 0.0001
         y0 = self.Y[index]
         labels = []
+        image = cv2.imread(self.path+self.X[index])
         for k in y0:
             #l = (k[0]-k[2]/2, k[1]-k[3]/2, k[0]+k[2]/2, k[1]+k[3]/2, 256)
             #l = torch.unsqueeze(torch.tensor(l),0)
             l = (k[0], k[1], k[0]+k[2]+v, k[1]+k[3]+v, 10)
-            labels.append(l)
+            if l[2] <= image.shape[1]+v and l[3] <= image.shape[0]+v:
+                labels.append(l)
         labels = np.array(labels)
-        image = cv2.imread(self.path+self.X[index])
         transformed = aug(image=image, bboxes=labels)
         x = transformed['image']
         y = transformed['bboxes']
         y = np.array(y)
         y = calcY(y)/img_size
         y[...,-1] *= img_size
-        # x = torch.from_numpy(x)
-        # x = x.permute(0, 3, 1, 2)
         return x,y
+
 
 def draw(frame, face_locations):
     frame = frame.numpy()
@@ -153,7 +153,7 @@ def draw(frame, face_locations):
     cv2.imshow('image', frame)
     cv2.waitKey(0)
 
-# data = WiderDataset(5,False)
+# data = WiderDataset(False, 5)
 # x,y = data[515]
 # print(y.shape)
 # draw(x,y)
