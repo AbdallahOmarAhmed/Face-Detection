@@ -1,4 +1,0 @@
-52_Photographers_photographertakingphoto_52_653
-2
-455 156 300 306 0.120562784
-507 264 262 292 0.037927255
