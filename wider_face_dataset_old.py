@@ -34,42 +34,6 @@ def getAug(train):
         ], bbox_params=Aug.BboxParams(format='pascal_voc', min_visibility=0.33))
         return transforms
 
-def calcY(Y):
-    out = torch.zeros([grid_size , grid_size, 5])
-    size = img_size/grid_size
-    for y in Y:
-        # wrong = sum((y < img_size) * 1 + (y > 0) * 1)
-        # if wrong != y.shape[0] * 2:
-        #     continue
-        w = y[2] - y[0]
-        h = y[3] - y[1]
-        centerX = (y[0] + y[2]) / 2
-        centerY = (y[1] + y[3]) / 2
-        colm = int(centerX / size)
-        row = int(centerY / size)
-        index = colm + row*grid_size
-        normX = colm / grid_size * img_size
-        normY = row / grid_size * img_size
-
-        centerX = (centerX - normX) * grid_size
-        # cell_size = 1 - normX
-        # centerX = centerX / cell_size
-
-        centerY = (centerY - normY) * grid_size
-        # cell_size = 1 - normY
-        # centerY = centerY / cell_size
-
-        #out[row][colm] = torch.tensor([centerX, centerY, w, h, 1])
-        out[row,colm,0] = centerX
-        out[row,colm,1] = centerY
-        out[row,colm,2] = w
-        out[row,colm,3] = h
-        out[row,colm,4] = 1
-
-        #out[row][colm] = torch.tensor([centerX, centerY, w, h, 1])
-    #out = out.reshape(grid_size, grid_size, 5)
-    return out
-
 class WiderDataset(Dataset):
     def __init__(self, train=True, max_faces=-1):
         self.train = train
@@ -110,19 +74,23 @@ class WiderDataset(Dataset):
         labels = []
         image = cv2.imread(self.path+self.X[index])
         for k in y0:
-            #l = (k[0]-k[2]/2, k[1]-k[3]/2, k[0]+k[2]/2, k[1]+k[3]/2, 256)
-            #l = torch.unsqueeze(torch.tensor(l),0)
-            l = (k[0], k[1], k[0]+k[2]+v, k[1]+k[3]+v, 10)
+            l = (k[0], k[1], k[0]+k[2]+v, k[1]+k[3]+v, 1)
             if l[2] <= image.shape[1]+v and l[3] <= image.shape[0]+v:
                 labels.append(l)
         labels = np.array(labels)
         transformed = aug(image=image, bboxes=labels)
         x = transformed['image']
         y = transformed['bboxes']
-        y = np.array(y)
-        y = calcY(y)/img_size
-        y[...,-1] *= img_size
         return x,y
+
+
+def myCollate(batch):
+    images = []
+    boxes = []
+    for x,y in batch:
+        images.append(x)
+        boxes.append(y)
+    return torch.stack(images), boxes
 
 
 def draw(frame, face_locations):
