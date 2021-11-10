@@ -35,4 +35,10 @@ OR
 comming soon!
 
 # Accurace
-comming soon!
+wider face easy : 88.8%
+
+wider face medium : 82.6%
+
+wider face hard : 52%
+
+still working on it 
