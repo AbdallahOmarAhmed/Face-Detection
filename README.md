@@ -1,6 +1,6 @@
 # Face-Detection
 Hello welcome to my face detection,
-its a face detection model using widerface dataset 
+its a face detection model using the famous widerface dataset 
 
 Note: sorry its not ready yet but it will be ready very soon :) 
 # Requirements
@@ -19,6 +19,16 @@ openCV : https://pypi.org/project/opencv-python/
 
 timm : https://pypi.org/project/timm/
 
+# Current Accurace
+
+wider face easy : 88.8%
+
+wider face medium : 82.6%
+
+wider face hard : 52%
+
+still working on it 
+
 # Preview  
 
 comming soon!
@@ -36,12 +46,3 @@ OR
 
 comming soon!
 
-# Current Accurace
-
-wider face easy : 88.8%
-
-wider face medium : 82.6%
-
-wider face hard : 52%
-
-still working on it 
