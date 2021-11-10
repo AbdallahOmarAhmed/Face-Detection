@@ -1,6 +1,8 @@
 # Face-Detection
 Hello welcome to my face detection,
 its a face detection model using widerface dataset 
+
+Note: sorry its not ready yet but it will be ready very soon :) 
 # Requirements
 
 Ubuntu      " It's only tested on Ubuntu, so it may not work on Windows "
@@ -34,7 +36,8 @@ OR
 
 comming soon!
 
-# Accurace
+# Current Accurace
+
 wider face easy : 88.8%
 
 wider face medium : 82.6%
