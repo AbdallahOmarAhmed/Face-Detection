@@ -5,10 +5,6 @@ its a face detection model using the famous widerface dataset
 Note: sorry its not ready yet but it will be ready very soon :) 
 # Requirements
 
-Ubuntu      " It's only tested on Ubuntu, so it may not work on Windows "
-
-GPU : Any GPU that is works with PyTorch
-
 numpy : https://numpy.org/
 
 PyTorch : https://pytorch.org/
