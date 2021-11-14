@@ -8,7 +8,7 @@ import argparse
 from tqdm import tqdm
 
 parser = argparse.ArgumentParser(description='add batch size')
-parser.add_argument('batch_size', type=int, help='the batch size of the data loader',)
+parser.add_argument('batch_size', type=int, help='the batch size of the data loader')
 args = parser.parse_args()
 
 device = torch.device('cuda' if torch.cuda.is_available() else'cpu')
