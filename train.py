@@ -2,7 +2,7 @@ import os
 import torch
 from torch.utils.data import DataLoader
 from model import FaceModel, YOLOLoss
-from wider_face_dataset_old import WiderDataset, grid_size, myCollate
+from wider_face_dataset import WiderDataset, grid_size, myCollate
 import time
 import argparse
 from tqdm import tqdm

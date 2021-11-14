@@ -1,15 +1,9 @@
-import os
-import time
 
 import torch
 import numpy as np
 from albumentations import DualTransform, denormalize_bbox, normalize_bbox
 from albumentations.pytorch import ToTensorV2
-from torch.utils.data import Dataset, DataLoader
-# from data_aug.data_aug import *
-# from data_aug.bbox_util import *
-import random
-import torch.nn as nn
+from torch.utils.data import Dataset
 import albumentations as Aug
 import cv2
 
@@ -144,7 +138,6 @@ class WiderDataset(Dataset):
                 self.X.append(imgName)
                 self.Y.append(anno)
         print('finished loading dataset : ', len(self.X))
-        # transforms = Sequence([RandomTranslate(0.1), RandomScale(0.2), Resize(img_size), RandomHorizontalFlip(0.5), RandomHSV(30, 20, 20)])\
 
     def __len__(self):
         return len(self.X)
@@ -187,13 +180,3 @@ def draw(frame, face_locations):
         c += 1
     cv2.imshow('image', frame)
     cv2.waitKey(0)
-
-# data = WiderDataset(True, 50)
-# while True:
-#     x,y = data[random.randint(0,5000)]
-#     # print(y)
-#     x=x.permute(1,2,0)
-#     # print(y.shape)
-#     draw(x,y)
-#     # cv2.imshow('image', x.numpy())
-#     # cv2.waitKey(0)
