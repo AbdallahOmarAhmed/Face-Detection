@@ -32,13 +32,13 @@ models/
 wider_face_split/
 WIDER_val/
 WIDER_train/
-make prediction.py
 test.py
 test2.py
 test_image.py
 test_scales.py
 wider_face_dataset.py
-output
+output/
+weights/
 .idea/
 
 # PyInstaller
