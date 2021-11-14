@@ -12,11 +12,11 @@ device = torch.device('cuda' if torch.cuda.is_available() else'cpu')
 print(device)
 
 # hayper parametars
-num_epochs = 100
+num_epochs = 200
 learning_rate = 0.001
-batch_size = 64
+batch_size = 58
 minLoss = -1
-name = 'cosine20'
+name = 'Root'
 # load data
 # train_data = TrainDataset()
 # test_data = TestDataset()
@@ -33,11 +33,12 @@ model.to(device)
 model.train()
 # optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9, weight_decay=5e-4)
 optimizer = torch.optim.Adam(model.parameters(),lr=learning_rate)
-scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=4, gamma=0.8)
+# scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=4, gamma=0.8)
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, num_epochs, eta_min=5e-6, verbose=True)
 myLoss = YOLOLoss(grid_size)
 
 print('finished loading model')
-print('__________________________________________________________________________\n')
+print('_______________________________________________________________________\n')
 
 # training loop
 for epoch in range(num_epochs):
@@ -46,7 +47,7 @@ for epoch in range(num_epochs):
     model.train()
     epoch_loss = 0
     c = 0
-    print('loading : ', end='', flush=True)
+    print('loading :', end='', flush=True)
     for x,y in train_dataloader:
         c += 1
         images = x.to(device)
@@ -70,9 +71,9 @@ for epoch in range(num_epochs):
     all_losses /= c
     print(epoch + 1, '/', num_epochs, 'loss = ', epoch_loss.item())
     with torch.no_grad():
-        print('loss56 :', all_losses[0].item()*16)
-        print('loss28 :', all_losses[1].item()*4)
-        print('loss14 :', all_losses[2].item())
+        print(' loss56 :', all_losses[0].item()*16)
+        print(' loss28 :', all_losses[1].item()*4)
+        print(' loss14 :', all_losses[2].item())
     model.eval()
     # accuracy
     with torch.no_grad():
@@ -96,9 +97,9 @@ for epoch in range(num_epochs):
         all_losses2 /= c_test
         print('loss test : ', loss2.item())
         with torch.no_grad():
-            print('loss56 :', all_losses2[0].item()*16)
-            print('loss28 :', all_losses2[1].item()*4)
-            print('loss14 :', all_losses2[2].item())
+            print(' loss56 :', all_losses2[0].item()*16)
+            print(' loss28 :', all_losses2[1].item()*4)
+            print(' loss14 :', all_losses2[2].item())
         if c == 20:
             torch.save(model.state_dict(), 'models/Best'+name+'20.pth')
         if loss2 < minLoss or minLoss == -1:
@@ -112,7 +113,7 @@ for epoch in range(num_epochs):
             file.write(str(epoch + 1) + '/' + str(num_epochs) + ' loss = ' + str(epoch_loss.item()) + "\n")
             file.write('loss test : ' + str(loss2.item()) + "\n")
             file.write('min loss = ' + str(minLoss) + "\n >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> \n")
-        print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+        print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
 
 
