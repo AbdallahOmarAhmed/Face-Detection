@@ -20,11 +20,11 @@ $ gdown https://drive.google.com/uc?id=15hGDLhsx8bLgLcIRD5DhYt5iBxnjNF1M
 $ gdown https://drive.google.com/uc?id=1GUCogbp16PMGa39thoMMeWxp7Rp5oM8Q
 $ wget shuoyang1213.me/WIDERFACE/support/bbx_annotation/wider_face_split.zip
  ```
-* Run the train.py file : `$ python3 train.py`
+* Run the train.py file : `$ python3 train.py [batch size]`
 
 # Evaluation
 
-* Make predictions : `$ python3 make_prediction.py`
+* Make predictions : `$ python3 make_prediction.py [your model path]`
 
 * Test predictions : `$ python3 eval/evaluation.py`
 
