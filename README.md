@@ -9,7 +9,7 @@ Note: sorry its not ready yet but it will be ready very soon :)
 
 * Clone the Repo : `$ git clone https://github.com/AbdallahOmarAhmed/face-mask-detection`
 
-* Install requirements : `$ pip install requirements.txt`
+* Install requirements : `$ pip install -r requirements.txt`
 
 * Setup evaluation : `$ python3 eval/setup.py build_ext --inplace`
 
