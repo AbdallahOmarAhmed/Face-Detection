@@ -3,17 +3,31 @@ Hello welcome to my face detection,
 its a face detection model using the famous widerface dataset 
 
 Note: sorry its not ready yet but it will be ready very soon :) 
-# Requirements
 
-numpy : https://numpy.org/
 
-PyTorch : https://pytorch.org/
+# Installation
 
-torchvision : https://pypi.org/project/torchvision/
+* Clone the Repo : `$ git clone https://github.com/AbdallahOmarAhmed/face-mask-detection`
 
-openCV : https://pypi.org/project/opencv-python/
+* Install requirements : `$ pip install requirements.txt`
 
-timm : https://pypi.org/project/timm/
+* Setup evaluation : `$ python3 eval/setup.py build_ext --inplace`
+
+# Train
+* Download wider face dataset and put it in the project dir :
+ ``` 
+$ gdown https://drive.google.com/uc?id=15hGDLhsx8bLgLcIRD5DhYt5iBxnjNF1M
+$ gdown https://drive.google.com/uc?id=1GUCogbp16PMGa39thoMMeWxp7Rp5oM8Q
+$ wget shuoyang1213.me/WIDERFACE/support/bbx_annotation/wider_face_split.zip
+ ```
+* Run the train.py file : `$ python3 train.py`
+
+# Evaluation
+
+* Make predictions : `$ python3 make_prediction.py`
+
+* Test predictions : `$ python3 eval/evaluation.py`
+
 
 # Current Accurace
 
@@ -25,20 +39,4 @@ wider face hard : 52%
 
 still working on it 
 
-# Preview  
-
-comming soon!
-# Train :
-
-* Download my pretrained model : comming soon!
-
-OR 
-
-* Download the wider face DataSet :  http://shuoyang1213.me/WIDERFACE/
- 
-* Run the train.py file : `$ python3 train.py`
-
-# Test 
-
-comming soon!
 
