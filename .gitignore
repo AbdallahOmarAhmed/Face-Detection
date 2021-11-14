@@ -32,7 +32,12 @@ models/
 wider_face_split/
 WIDER_val/
 WIDER_train/
-
+make prediction.py
+test.py
+test2.py
+test_image.py
+test_scales.py
+wider_face_dataset.py
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
