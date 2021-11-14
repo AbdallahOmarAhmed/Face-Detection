@@ -19,7 +19,6 @@ num_epochs = 200
 learning_rate = 0.001
 batch_size = args.batch_size
 minLoss = -1
-name = 'Root'
 
 train_data = WiderDataset(max_faces=50)
 test_data = WiderDataset(train=False, max_faces=50)
