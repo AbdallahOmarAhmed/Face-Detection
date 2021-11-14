@@ -7,6 +7,8 @@ Note: sorry its not ready yet but it will be ready very soon :)
 
 # Installation
 
+* install pytorch : https://pytorch.org/
+
 * Clone the Repo : `$ git clone https://github.com/AbdallahOmarAhmed/face-mask-detection`
 
 * Install requirements : `$ pip install -r requirements.txt`
