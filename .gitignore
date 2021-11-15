@@ -34,12 +34,12 @@ WIDER_val/
 WIDER_train/
 test.py
 test2.py
-test_image.py
 test_scales.py
 wider_face_dataset.py
 output/
 weights/
 .idea/
+samples/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
