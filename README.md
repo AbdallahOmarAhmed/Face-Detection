@@ -1,7 +1,7 @@
 # Face-Detection
 Hello welcome to my face detection,
 
-its pytorch implementation of face detection system using yolo techniques
+Its pytorch implementation of face detection system using yolo techniques
 
 # Installation
 
