@@ -24,9 +24,9 @@ $ wget shuoyang1213.me/WIDERFACE/support/bbx_annotation/wider_face_split.zip
 
 # Evaluation
 ###  Pre trained models:
-back bone | epochs number | epoch time ( rtx-2070. ) | easy accurace | med accurace | hard accurace | resolution
-----------|---------------|------------|----------|-----------|-----------|--------
-[resnet18](https://drive.google.com/file/d/1es76BbJn1Wofc9AsdR4EC123N5dE4Fyi/view?usp=sharing)|200|154 sec|88.4%|83.4%|56.7%|448 * 448
+back bone | epoch time ( rtx-2070. ) | easy accurace | med accurace | hard accurace | resolution
+----------|------------|----------|-----------|-----------|--------
+[resnet18](https://drive.google.com/file/d/1es76BbJn1Wofc9AsdR4EC123N5dE4Fyi/view?usp=sharing)|154 sec|88.4%|83.4%|56.7%|448 * 448
 
 ###  Test your own model: 
 
