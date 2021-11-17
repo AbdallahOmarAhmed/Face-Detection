@@ -97,6 +97,8 @@ for i, image_path in tqdm(enumerate(images)):
 
     # performing detection
     img = cv2.imread(image_path, cv2.IMREAD_COLOR)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
     # img_size = (img.shape[0], img.shape[1])
     transformed = aug(image=img)
     transformed_img = transformed['image']

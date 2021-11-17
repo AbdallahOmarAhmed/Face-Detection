@@ -15,12 +15,12 @@ device = torch.device('cuda' if torch.cuda.is_available() else'cpu')
 print('you are using', device)
 
 # hayper parametars
-num_epochs = 200
+num_epochs = 300
 learning_rate = 0.001
 batch_size = args.batch_size
 minLoss = -1
 
-train_data = WiderDataset(max_faces=50)
+train_data = WiderDataset()
 test_data = WiderDataset(train=False, max_faces=50)
 
 train_dataloader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=4, collate_fn=myCollate)
@@ -30,7 +30,7 @@ test_dataloader = DataLoader(test_data, batch_size=batch_size, shuffle=False, nu
 model = FaceModel('resnet18')
 model.to(device)
 model.train()
-optimizer = torch.optim.Adam(model.parameters(),lr=learning_rate)
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, num_epochs, eta_min=5e-6)
 myLoss = YOLOLoss(grid_size)
 if not os.path.isdir('weights'):

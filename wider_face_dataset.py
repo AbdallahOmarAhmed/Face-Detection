@@ -147,6 +147,7 @@ class WiderDataset(Dataset):
         y0 = self.Y[index]
         labels = []
         image = cv2.imread(self.path+self.X[index])
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         for k in y0:
             l = (k[0], k[1], k[0]+k[2]+v, k[1]+k[3]+v, 1)
             if l[2] <= image.shape[1]+v and l[3] <= image.shape[0]+v:

@@ -65,13 +65,11 @@ class YOLOLoss(torch.nn.Module):
         self.l_noobj = l_noobj
 
     def forward(self, preds, ans):
-        losses = np.array([0.,0.,0.])
         loss = 0
-        for i, pred in enumerate(preds):
+        for pred in preds:
             target = self.create_targets(ans, pred).cuda()
-            loss0, iou = self.Loss(pred, target)
+            loss0 = self.Loss(pred, target)
             loss += loss0
-            losses[i] = loss0
         return loss
 
     def Loss(self, pred, target):
@@ -85,10 +83,11 @@ class YOLOLoss(torch.nn.Module):
 
         obj_loss = torch.sum(obj_mask * F.mse_loss(pred[:, :, :, 4], iou, reduction='none'))
         no_obj_loss = self.l_noobj * torch.sum(no_obj_mask * F.mse_loss(pred[..., 4], target[..., 4], reduction='none'))
-        coord_loss = self.l_coord * torch.sum(obj_mask * F.mse_loss(pred[..., :4], target[..., :4], reduction='none').sum(-1))
+        xy_loss = self.l_coord * torch.sum(obj_mask * F.mse_loss(pred[..., 0:2], target[..., 0:2], reduction='none').sum(-1))
+        wh_loss = self.l_coord * torch.sum(obj_mask * F.mse_loss(pred[..., 2:4], target[..., 2:4], reduction='none').sum(-1))
 
         norm = grid_size / 14
-        return (obj_loss + no_obj_loss + coord_loss) / (batch_size * norm**2), iou
+        return (obj_loss + no_obj_loss + xy_loss + wh_loss) / (batch_size * norm**2)
 
     def create_targets(self, Y, pred):
         out = torch.zeros(pred.shape)
@@ -115,9 +114,6 @@ class YOLOLoss(torch.nn.Module):
                 out[i, row, colm, 2] = w / self.img_size
                 out[i, row, colm, 3] = h / self.img_size
                 out[i, row, colm, 4] = 1
-
-                if out[i, row, colm, 0] * out[i, row, colm, 1] * out[i, row, colm, 2] * out[i, row, colm, 3] < 0:
-                    print('target')
         return out
 
     def compute_iou(self, boxes1, boxes2):

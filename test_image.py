@@ -68,7 +68,7 @@ def post_process(face_locations):
 
 def draw(frame, face_location):
     for k in face_location:
-        if k[4] >= 0.5:
+        if k[4] >= 0.3:
             k = list(map(int, k))
             cv2.rectangle(frame, (k[0], k[1]), (k[2], k[3]), (256, 0, 0), 2)
     cv2.imshow('image', frame)
@@ -81,10 +81,12 @@ transforms = Aug.Compose([
     Aug.Resize(img_size, img_size),
     Aug.Normalize(),
     ToTensorV2()])
-transforms2 = Aug.Resize(img_size, img_size)
 image = cv2.imread(args.image_path)
+orig_size = (image.shape[0], image.shape[1])
+image2 = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
 # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-transformed = transforms(image=image)
+transformed = transforms(image=image2)
 x = transformed['image']
 x = x.unsqueeze(0).cuda()
 output = model(x)
@@ -96,8 +98,8 @@ with torch.no_grad():
     dets = np.array(dets1 + dets2 + dets3)
     keep = nms(dets, 0.25)
     dets = dets[keep]
-
-
-transformed2 = transforms2(image=image)
-image = transformed2['image']
+    dets[..., 0] = dets[..., 0] * orig_size[1] / img_size
+    dets[..., 1] = dets[..., 1] * orig_size[0] / img_size
+    dets[..., 2] = dets[..., 2] * orig_size[1] / img_size
+    dets[..., 3] = dets[..., 3] * orig_size[0] / img_size
 draw(image, dets)
