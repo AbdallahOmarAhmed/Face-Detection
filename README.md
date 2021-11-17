@@ -1,7 +1,7 @@
 # Face-Detection
 Hello welcome to my face detection,
 
-Its pytorch implementation of face detection system using yolo techniques
+Its pytorch implementation of face detection system using yolo techniques on the famous widerfacedataset : http://shuoyang1213.me/WIDERFACE/
 
 # Installation
 
