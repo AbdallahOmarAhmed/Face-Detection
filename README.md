@@ -14,12 +14,19 @@ Its pytorch implementation of face detection system using yolo techniques on the
 * Setup evaluation : `$ python3 eval/setup.py build_ext --inplace`
 
 # Train
-* Download wider face dataset and put it in the project dir :
+* Download widerface dataset in the project dir :
  ``` 
 $ gdown https://drive.google.com/uc?id=15hGDLhsx8bLgLcIRD5DhYt5iBxnjNF1M
 $ gdown https://drive.google.com/uc?id=1GUCogbp16PMGa39thoMMeWxp7Rp5oM8Q
 $ wget shuoyang1213.me/WIDERFACE/support/bbx_annotation/wider_face_split.zip
+ ``` 
+* Unzip the dataset files:
  ```
+$ unzip WIDER_train.zip
+$ unzip WIDER_val.zip
+$ unzip wider_face_split.zip
+ ```
+
 * Run the train.py file : `$ python3 train.py [batch size]`
 
 # Evaluation
